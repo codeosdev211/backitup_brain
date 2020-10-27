@@ -1,0 +1,15 @@
+Authentication must revolve around Email ID
+email must be sent on sign up, forgot password, change password, notification.
+email must be valid
+
+password should be encrypted in the database.
+password min len = 16
+password max len = 25
+password must contain:
+- letters
+- a special symbol 
+- numbers
+
+first name and second name must be taken differently
+country needed
+
