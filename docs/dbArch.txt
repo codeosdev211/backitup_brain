@@ -1,0 +1,65 @@
+user table (Backitup User)
+
+CREATE TABLE BU (
+    id serial PRIMARY KEY,
+    code int UNIQUE NOT NULL,
+    firstName text NOT NULL,
+    lastName text NOT NULL,
+    email text UNIQUE NOT NULL,
+    password varchar(30) NOT NULL,
+    totalGroups smallint NOT NULL,
+    totalFiles int NOT NULL,
+    createdOn TEXT NOT NULL,
+    isActive varchar(12) NOT NULL,
+    );
+
+file table (Backitup File)
+
+CREATE TABLE BF (
+    id serial PRIMARY KEY,
+    code int  UNIQUE NOT NULL,
+    name text NOT NULL,
+    originalSize real NOT NULL,
+    ownerCode varchar(40) NOT NULL,
+    savedPath text NOT NULL
+    );
+    
+groups table (Backitup Groups)
+CREATE TABLE BG (
+    id serial PRIMARY KEY,
+    code int UNIQUE NOT NULL, 
+    name text NOT NULL,
+    ownerCode int NOT NULL,
+    fileCount int NOT NULL,
+    userCount smallint NOT NULL,
+    createdOn text NOT NULL
+    );
+
+user-group table (Backitup UserGroup)
+CREATE TABLE BUG (
+    id serial PRIMARY KEY,
+    userCode int NOT NULL,
+    groupCode int NOT NULL,
+    addedOn text NOT NULL,
+    addedBy int NOT NULL
+    );
+
+file-group table (Backitup FileGroup)
+CREATE TABLE BFG (
+    id serial PRIMARY KEY,
+    fileCode int NOT NULL,
+    groupCode int NOT NULL,
+    addedOn text NOT NULL,
+    addedBy int NOT NULL
+    );
+
+request-Group table (Backitup RequestGroup)
+CREATE TABLE BRG (
+    id serial PRIMARY KEY,
+    groupCode int NOT NULL,
+    ownerCode int NOT NULL,
+    requestBy int NOT NULL,
+    requestOn text NOT NULL,
+    isAccepted boolean NOT NULL
+    );
+

@@ -1,23 +1,40 @@
-package db
+package psql
 
 import (
     "database/sql"
+    "fmt"
+    _ "github.com/lib/pq"
 )
 
-func CallDatabase(queryType int8, query *string) ([]map[string]interface{}, error) {
+const (
+    host = "localhost"
+    port = 5432
+    user = "postgres"
+    password = "omkara@211"
+    dbname = "backitup"
+)
+
+func CallDatabase(isSelect bool, query *string) {
     /* connecting to database */
-    database, err := sql.Open("mysql", "root:omkara@211@tcp(127.0.0.1:3306)/WYW")
+    dbInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+        host, port, user, password, dbname)
+    db, err := sql.Open("postgres", dbInfo)
     if err != nil {
         return nil, err
     }
-    defer database.Close()
+    defer db.Close()
 
     /* getting rows from result */
-    rows, err := database.Query(*query)
+    rows, err := db.Query(*query)
     if err != nil {
         return nil, err
     }
     defer rows.Close()
+
+    /* returning if insert, alter, update, drop, truncate */
+    if !isSelect {
+        return nil, nil
+    }
 
     /* getting columns of rows */
     columns, err := rows.Columns()
@@ -25,19 +42,17 @@ func CallDatabase(queryType int8, query *string) ([]map[string]interface{}, erro
         return nil, err
     }
 
-    var colCount int =len(columns)
-
+    var colCount int = len(columns)
     /* creating jsonarray structure using nested map */
     response := make([]map[string]interface{}, 0)
     keys := make([]interface{}, colCount)
     ptrKeys := make([]interface{}, colCount)
 
-    /* looping through each row */
+    /* loopingi through each row */
     for rows.Next() {
         for cell := 0; cell < colCount; cell++ {
             ptrKeys[cell] = &keys[cell]
         }
-
         rows.Scan(ptrKeys...)
 
         /* creating jsonobject like structure */
@@ -46,7 +61,7 @@ func CallDatabase(queryType int8, query *string) ([]map[string]interface{}, erro
             var value interface{}
             bytes, ok := keys[col].([]byte)
             if ok {
-                value = string(bytes)
+                value = string[bytes]
             }else{
                 value = keys[col]
             }
@@ -56,4 +71,9 @@ func CallDatabase(queryType int8, query *string) ([]map[string]interface{}, erro
     }
     return response, nil
 }
+
+
+
+
+
 

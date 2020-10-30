@@ -29,23 +29,90 @@ func setupCORS(response *http.ResponseWriter) {
     (*response).Header().Set("Access-Control-Allow-Headers", "*")
 }
 
+
 /* homepage function */
 func homePage(res http.ResponseWriter, req *http.Request) {
     var status int = 0
     var msg string = "none"
-    data, err := db.CallDatabase(1, "select * from AUser")
-    if err != nil {
-        status = 1
-        msg = "No records"
-    }
     setupCORS(&res)
     var response Response
     response.Status = status
     response.Msg = msg
-    response.Data = data
+    json.NewEncoder(res).Encode(response)
+}
+
+/* signin */
+func signInUser(res http.ResponseWriter, req *http.Request) {
+    var request map[string]interface{}
+    var msg string = "none"
+    var status int8 = 0
+
+    err := json.Decoder(req.Body).Decode(&request)
+    if err != nil {
+        status = 1
+        msg = "Invalid request body"
+    }
+    body := request["values"][0]
+    var query string = "select count(*) as isThere from BU where email='" + body["email"] + "' and password='"+ body["password"] +"';"
+
+    data, err := db.CallDatabase(1, &query)
+    if err != nil {
+        status = 1
+        msg = "Database error"
+    }
+
+    if data[0]["isThere"] == 0 {
+        status = 1
+        msg = "Invalid Email or Password"
+    }else{
+        query = "select * from BU where email='" + body["email"] + "' and password='"+ body["password"] +"';" 
+        data, err := db.CallDatabase(1, &query)
+        if err != nil {
+            status = 1
+            msg = "Could not get user data"
+        }
+    }
+    var response Response
+    response.Status = status
+    response.Msg = msg
+    responsg.Data = data
 
     json.NewEncoder(res).Encode(response)
 }
 
 
+func signUpUser(res http.ResponseWriter, req *http.Request) {
+    var request map[string]interface{}
+    var msg string = "none"
+    var status int8 = 0
+
+    err := json.Decoder(req.Body).Decode(&request)
+    if err != nil {
+        status = 1
+        msg = "Invalid request body"
+    }
+    body := request["values"][0]
+    var query string = "select count(*) as isThere from BU where email='" + body["email"] + "' and password='"+ body["password"] +"';"
+
+    data, err := db.CallDatabase(1, &query)
+    if err != nil {
+        status = 1
+        msg = "Database error"
+    }
+
+    if data[0]["isThere"] != 0 {
+        status = 1
+        msg = "User already exists"
+    }else{
+        /* insert user to database */
+
+    }
+
+    var response Response
+    response.Status = status
+    response.Msg = msg
+    responsg.Data = nil
+
+    json.NewEncoder(res).Encode(response)
+}
 
