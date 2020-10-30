@@ -121,7 +121,7 @@ func signUpUser(res http.ResponseWriter, req *http.Request) {
     }else{
         /* insert user to database */
         currentTime := time.Now()
-        query = fmt.Sprintf("Insert into bu values(firstName, lastName, email, password, totalGroups, totalFiles, createdOn, isActive) values " +
+        query = fmt.Sprintf("Insert into BU values(firstName, lastName, email, password, totalGroups, totalFiles, createdOn, isActive) values " +
                 "('%s', '%s', '%s', '%s', '%d', '%d', '%s', '%s');",
                 body["firstName"], body["lastName"], body["email"], body["password"], 0, 0, currentTime.Format("2006.01.02 15:04:05"), "TRUE");
         _, err := db.CallDatabase(true, &query)

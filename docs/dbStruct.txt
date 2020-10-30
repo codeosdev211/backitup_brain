@@ -1,0 +1,62 @@
+user table (Backitup User)
+CREATE TABLE BU (
+    id int(11) auto_increment,
+    code varchar(20) not null default '0',
+    firstName varchar(30) not null default ' ',
+    lastName varchar(30) not null default ' ',
+    email varchar(200) not null default ' ',
+    password varchar(30) not null default ' ' ,
+    totalGroups int not null default '0',
+    totalFiles int not null default '0',
+    createdOn varchar(40) not null default ' ',
+    isActive varchar(5) not null default ' ',
+    primary key(id));
+
+file table (Backitup File)
+CREATE TABLE BF (
+    id int(11) auto_increment,
+    code varchar(20) not null default ' ',
+    name varchar(150) not null default ' ',
+    originalSize decimal(18,2) not null default '0.00',
+    ownerCode varchar(20) not null default ' ',
+    savedPath varchar(300) not null default  ' ',
+    primary key(id));
+
+groups table (Backitup Groups)
+CREATE TABLE BG (
+    id int(11) auto_increment,
+    code varchar(20) not null default ' ',
+    name varchar(60) not null default ' ',
+    ownerCode varchar(20) not null default ' ',
+    fileCount int not null default '0',
+    userCount int not null default '0',
+    createdOn varchar(300) not null default ' ',
+    primary key(id));
+
+user-group table (Backitup UserGroup)
+CREATE TABLE BUG (
+    id int(11) auto_increment, 
+    userCode varchar(20) not null default ' ',
+    groupCode varchar(20) not null default ' ',
+    addedOn varchar(40) not null default ' ',
+    addedBy varchar(20) not null default ' ',
+    primary key(id));
+
+file-group table (Backitup FileGroup)
+CREATE TABLE BFG (
+    id int(11) auto_increment,
+    fileCode varchar(20) not null default ' ',
+    groupCode varchar(20) not null default ' ',
+    addedOn varchar(40) not null default  ' ',
+    addedBy varchar(20) not null default ' ',
+    primary key(id));
+
+request-Group table (Backitup RequestGroup)
+CREATE TABLE BRG (
+    id int(11) auto_increment,
+    groupCode varchar(20) not null default ' ',
+    ownerCode varchar(20) not null default ' ',
+    requestBy varchar(20) not null default ' ',
+    requestOn varchar(40) not null default ' ',
+    isAccepted varchar(5) not null default ' ',
+    primary key(id));
