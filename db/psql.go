@@ -14,7 +14,7 @@ const (
     dbname = "backitup"
 )
 
-func CallDatabase(isSelect bool, query *string) {
+func CallDatabase(isSelect bool, query *string) ([]map[string]interface{}, error) {
     /* connecting to database */
     dbInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
         host, port, user, password, dbname)
@@ -61,7 +61,7 @@ func CallDatabase(isSelect bool, query *string) {
             var value interface{}
             bytes, ok := keys[col].([]byte)
             if ok {
-                value = string[bytes]
+                value = string(bytes)
             }else{
                 value = keys[col]
             }

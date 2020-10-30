@@ -7,18 +7,25 @@ import (
     mux "github.com/gorilla/mux"
     db "./db"
     _ "github.com/go-sql-driver/mysql"
+    "time"
 )
 
 type Response struct {
-    Status int `json:"status"`
+    Status int8 `json:"status"`
     Msg string `json:"msg"`
     Data []map[string]interface{} `json:"data"`
+}
+
+type Request struct {
+    Values []map[string]interface{}
 }
 
 /* main function allows routing requests */
 func main() {
     router := mux.NewRouter().StrictSlash(true)
     router.HandleFunc("/home", homePage)
+    router.HandleFunc("/user/login", signInUser)
+    router.HandleFunc("/user/register", signUpUser)
 
     http.ListenAndServe(":8001", router)
 }
@@ -33,7 +40,7 @@ func setupCORS(response *http.ResponseWriter) {
 
 /* homepage function */
 func homePage(res http.ResponseWriter, req *http.Request) {
-    var status int = 0
+    var status int8 = 0
     var msg string = "none"
     setupCORS(&res)
     var response Response
@@ -44,19 +51,22 @@ func homePage(res http.ResponseWriter, req *http.Request) {
 
 /* signin */
 func signInUser(res http.ResponseWriter, req *http.Request) {
-    var request map[string]interface{}
+    if req.Method != "POST" {
+        json.NewEncoder(res).Encode(Response{1, "Invalid Request Type", nil})
+    }
+    var request Request 
     var msg string = "none"
     var status int8 = 0
 
-    err := json.Decoder(req.Body).Decode(&request)
+    err := json.NewDecoder(req.Body).Decode(&request)
     if err != nil {
         status = 1
         msg = "Invalid request body"
     }
-    body := request["values"][0]
-    var query string = "select count(*) as isThere from BU where email='" + body["email"] + "' and password='"+ body["password"] +"';"
+    body := request.Values[0]
+    var query string = fmt.Sprintf("select count(*) as isThere from BU where email='%v' and password='%v';", body["email"], body["password"])
 
-    data, err := db.CallDatabase(1, &query)
+    data, err := db.CallDatabase(true, &query)
     if err != nil {
         status = 1
         msg = "Database error"
@@ -66,8 +76,9 @@ func signInUser(res http.ResponseWriter, req *http.Request) {
         status = 1
         msg = "Invalid Email or Password"
     }else{
-        query = "select * from BU where email='" + body["email"] + "' and password='"+ body["password"] +"';" 
-        data, err := db.CallDatabase(1, &query)
+        query = fmt.Sprintf("select * from BU where email='%s' and password='%s';", body["email"], body["password"])
+
+        data , err = db.CallDatabase(true, &query)
         if err != nil {
             status = 1
             msg = "Could not get user data"
@@ -76,26 +87,29 @@ func signInUser(res http.ResponseWriter, req *http.Request) {
     var response Response
     response.Status = status
     response.Msg = msg
-    responsg.Data = data
+    response.Data = data
 
     json.NewEncoder(res).Encode(response)
 }
 
 
 func signUpUser(res http.ResponseWriter, req *http.Request) {
-    var request map[string]interface{}
+    if req.Method != "POST" {
+        json.NewEncoder(res).Encode(Response{1, "Invalid Request Type", nil})
+    }
+    var request Request
     var msg string = "none"
     var status int8 = 0
 
-    err := json.Decoder(req.Body).Decode(&request)
+    err := json.NewDecoder(req.Body).Decode(&request)
     if err != nil {
         status = 1
         msg = "Invalid request body"
     }
-    body := request["values"][0]
-    var query string = "select count(*) as isThere from BU where email='" + body["email"] + "' and password='"+ body["password"] +"';"
+    body := request.Values[0]
+    var query string = fmt.Sprintf("select count(*) as isThere from BU where email='%v' and password='%v';", body["email"], body["password"])
 
-    data, err := db.CallDatabase(1, &query)
+    data, err := db.CallDatabase(true, &query)
     if err != nil {
         status = 1
         msg = "Database error"
@@ -106,14 +120,21 @@ func signUpUser(res http.ResponseWriter, req *http.Request) {
         msg = "User already exists"
     }else{
         /* insert user to database */
-        query = fmt.Sprintf("Insert into bu values(firstName, lastName, email, password, totalGroups, totalFiles, createdOn, isActive) values ")
-
+        currentTime := time.Now()
+        query = fmt.Sprintf("Insert into bu values(firstName, lastName, email, password, totalGroups, totalFiles, createdOn, isActive) values " +
+                "('%s', '%s', '%s', '%s', '%d', '%d', '%s', '%s');",
+                body["firstName"], body["lastName"], body["email"], body["password"], 0, 0, currentTime.Format("2006.01.02 15:04:05"), "TRUE");
+        _, err := db.CallDatabase(true, &query)
+        if err != nil {
+            status = 1
+            msg = "Could not create User"
+        }
     }
 
     var response Response
     response.Status = status
     response.Msg = msg
-    responsg.Data = nil
+    response.Data = nil
 
     json.NewEncoder(res).Encode(response)
 }
