@@ -10,7 +10,7 @@ CREATE TABLE BU (
     totalGroups smallint NOT NULL,
     totalFiles int NOT NULL,
     createdOn TEXT NOT NULL,
-    isActive varchar(12) NOT NULL,
+    isActive varchar(12) NOT NULL
     );
 
 file table (Backitup File)
