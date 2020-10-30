@@ -2,7 +2,7 @@ user table (Backitup User)
 
 CREATE TABLE BU (
     id serial PRIMARY KEY,
-    code int UNIQUE NOT NULL,
+    code serial UNIQUE NOT NULL,
     firstName text NOT NULL,
     lastName text NOT NULL,
     email text UNIQUE NOT NULL,
@@ -17,17 +17,17 @@ file table (Backitup File)
 
 CREATE TABLE BF (
     id serial PRIMARY KEY,
-    code int  UNIQUE NOT NULL,
+    code serial  UNIQUE NOT NULL,
     name text NOT NULL,
     originalSize real NOT NULL,
-    ownerCode varchar(40) NOT NULL,
+    ownerCode int  NOT NULL,
     savedPath text NOT NULL
     );
     
 groups table (Backitup Groups)
 CREATE TABLE BG (
     id serial PRIMARY KEY,
-    code int UNIQUE NOT NULL, 
+    code serial UNIQUE NOT NULL, 
     name text NOT NULL,
     ownerCode int NOT NULL,
     fileCount int NOT NULL,

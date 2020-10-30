@@ -1,6 +1,7 @@
 package main
 
 import (
+    "fmt"
     http "net/http"
     "encoding/json"
     mux "github.com/gorilla/mux"
@@ -105,6 +106,7 @@ func signUpUser(res http.ResponseWriter, req *http.Request) {
         msg = "User already exists"
     }else{
         /* insert user to database */
+        query = fmt.Sprintf("Insert into bu values(firstName, lastName, email, password, totalGroups, totalFiles, createdOn, isActive) values ")
 
     }
 
