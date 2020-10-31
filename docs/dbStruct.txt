@@ -63,7 +63,7 @@ CREATE TABLE BRG (
 
 app-data (Backitup AppData)
 CREATE TABLE BAD (
-    lastUserCode varchar(20) not null default ' ',
-    lastFileCode varchar(20) not null default ' ',
-    lastGroupCode varchar(20) not null default ' '
+    lastUserCode int(11) not null default '0',
+    lastFileCode int(11) not null default '0',
+    lastGroupCode int(11) not null default '0'
     );

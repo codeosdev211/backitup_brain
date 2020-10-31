@@ -118,13 +118,20 @@ func signUpUser(res http.ResponseWriter, req *http.Request) {
         msg = "User already exists"
     }else{
         /* insert user to database */
-        /* get last usercode and add value to insert query */
+        query = "Update BAD set lastUserCode = lastUserCode + 1;";
+        _, err =  db.CallDatabase(false, &query)
+        if err != nil {
+            status = 1
+            msg = "Database error"
+        }
+        query = "select lastUserCode from BAD;"
+        data, _ = db.CallDatabase(true, &query)
+        newUserCode := data[0]["lastUserCode"]
         currentTime := time.Now()
-        query = fmt.Sprintf("Insert into BU values(firstName, lastName, email, password, totalGroups, totalFiles, createdOn, isActive) values " +
-                "('%s', '%s', '%s', '%s', '%d', '%d', '%s', '%s');",
-                body["firstName"], body["lastName"], body["email"], body["password"], 0, 0, currentTime.Format("2006.01.02 15:04:05"), "TRUE");
-        fmt.Println(query)
-        _, err := db.CallDatabase(true, &query)
+        query = fmt.Sprintf("Insert into BU (code, firstName, lastName, email, password, totalGroups, totalFiles, createdOn, isActive) values " +
+                "('%v', '%v', '%v', '%v', '%v', '%v', '%v', '%v', '%v');",
+                 newUserCode, body["firstName"], body["lastName"], body["email"], body["password"], 0, 0, currentTime.Format("2006.01.02 15:04:05"), "TRUE");
+        _, err = db.CallDatabase(false, &query)
         if err != nil {
             status = 1
             msg = "Could not create User"
