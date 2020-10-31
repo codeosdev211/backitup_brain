@@ -60,3 +60,10 @@ CREATE TABLE BRG (
     requestOn varchar(40) not null default ' ',
     isAccepted varchar(5) not null default ' ',
     primary key(id));
+
+app-data (Backitup AppData)
+CREATE TABLE BAD (
+    lastUserCode varchar(20) not null default ' ',
+    lastFileCode varchar(20) not null default ' ',
+    lastGroupCode varchar(20) not null default ' '
+    );

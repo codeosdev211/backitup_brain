@@ -108,22 +108,22 @@ func signUpUser(res http.ResponseWriter, req *http.Request) {
     }
     body := request.Values[0]
     var query string = fmt.Sprintf("select count(*) as isThere from BU where email='%v' and password='%v';", body["email"], body["password"])
-
     data, err := db.CallDatabase(true, &query)
     if err != nil {
         status = 1
         msg = "Database error"
     }
-
-    if data[0]["isThere"] != 0 {
+    if data[0]["isThere"] != "0" {
         status = 1
         msg = "User already exists"
     }else{
         /* insert user to database */
+        /* get last usercode and add value to insert query */
         currentTime := time.Now()
         query = fmt.Sprintf("Insert into BU values(firstName, lastName, email, password, totalGroups, totalFiles, createdOn, isActive) values " +
                 "('%s', '%s', '%s', '%s', '%d', '%d', '%s', '%s');",
                 body["firstName"], body["lastName"], body["email"], body["password"], 0, 0, currentTime.Format("2006.01.02 15:04:05"), "TRUE");
+        fmt.Println(query)
         _, err := db.CallDatabase(true, &query)
         if err != nil {
             status = 1

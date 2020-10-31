@@ -6,7 +6,7 @@ import (
 
 func CallDatabase(isSelect bool, query *string) ([]map[string]interface{}, error) {
     /* connecting to database */
-    db, err := sql.Open("mysql", "root:omkara@211@tcp(127:0.0.1:3306)/backitup")
+    db, err := sql.Open("mysql", "root:omkara@211@tcp(localhost:3306)/backitup")
     if err != nil {
         return nil, err
     }
@@ -38,7 +38,7 @@ func CallDatabase(isSelect bool, query *string) ([]map[string]interface{}, error
 
     /* looping through each row */
     for rows.Next() {
-        for cell := 0; cell < colCount; cell++) {
+        for cell := 0; cell < colCount; cell++ {
             ptrKeys[cell] = &keys[cell]
         }
         rows.Scan(ptrKeys...)
