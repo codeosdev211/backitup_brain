@@ -126,7 +126,7 @@ func signUpUser(res http.ResponseWriter, req *http.Request) {
         }
         query = "select lastUserCode from BAD;"
         data, _ = db.CallDatabase(true, &query)
-        newUserCode := data[0]["lastUserCode"]
+        newUserCode := fmt.Sprintf("BUI%v", data[0]["lastUserCode"])
         currentTime := time.Now()
         query = fmt.Sprintf("Insert into BU (code, firstName, lastName, email, password, totalGroups, totalFiles, createdOn, isActive) values " +
                 "('%v', '%v', '%v', '%v', '%v', '%v', '%v', '%v', '%v');",
