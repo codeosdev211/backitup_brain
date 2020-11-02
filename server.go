@@ -26,6 +26,8 @@ func main() {
     router.HandleFunc("/home", homePage)
     router.HandleFunc("/user/login", signInUser)
     router.HandleFunc("/user/register", signUpUser)
+    router.HandleFunc("/files/add", addFiles)
+    router.HandleFunc("/files/list", listFiles);
 
     http.ListenAndServe(":8001", router)
 }
@@ -147,7 +149,54 @@ func signUpUser(res http.ResponseWriter, req *http.Request) {
 }
 
 /* adding file */
-func addFile(res http.ResponseWriter, req *http.Request) {
+func addFiles(res http.ResponseWriter, req *http.Request) {
+    if req.Method != "POST" {
+        json.NewEncoder(res).Encode(Response{1, "Invalid Request Type", nil})
+    }
+    var request Request
+    var msg string = "none"
+    var status int8 = 0
+
+    err := json.NewDecoder(req.Body).Decode(&request)
+    if err != nil {
+        status = 1
+        msg = "Invalid request body"
+    }
+
+    for _, body := range request.Values {
+        query := "Update BAD set lastFileCode = lastFileCode + 1;";
+        _, err :=  db.CallDatabase(false, &query)
+        if err != nil {
+             status = 1
+            msg = "Database error"
+        }
+
+        query = "select lastFileCode from BAD;"
+        data, _ := db.CallDatabase(true, &query)
+        fileCode := fmt.Sprintf("BUI%v", data[0]["lastUserCode"])
+
+        query = fmt.Sprintf("Insert into BF(code, name, extension, originalSize, ownerCode, fileData) values "+
+            "('%v', '%v', '%v', '%v', '%v', '%v');",
+            fileCode, body["name"], body["extension"], body["originalSize"], body["ownerCode"], body["fileData"])
+        data, err = db.CallDatabase(false, &query)
+        if err != nil {
+            status = 1
+            msg = "Invalid Insertion data"
+            break
+        }
+    }
+
+    var response Response
+    response.Status = status
+    response.Msg = msg
+    response.Data = nil
+
+    json.NewEncoder(res).Encode(response)
+
+}
+
+/* listing files */
+func listFiles(res http.ResponseWriter, req *http.Request) {
     if req.Method != "POST" {
         json.NewEncoder(res).Encode(Response{1, "Invalid Request Type", nil})
     }
@@ -161,5 +210,17 @@ func addFile(res http.ResponseWriter, req *http.Request) {
         msg = "Invalid request body"
     }
     body := request.Values[0]
+    query := fmt.Sprintf("select * from BF where ownerCode='%v';", body["code"])
+    data, err := db.CallDatabase(true, &query)
+    if err != nil {
+        status = 1
+        msg = "Could not get Files"
+    }
 
+    var response Response
+    response.Status = status
+    response.Msg = msg
+    response.Data = data
+
+    json.NewEncoder(res).Encode(response)
 }
