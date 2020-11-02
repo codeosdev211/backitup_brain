@@ -17,9 +17,10 @@ CREATE TABLE BF (
     id int(11) auto_increment,
     code varchar(20) not null default ' ',
     name varchar(150) not null default ' ',
+    extension varchar(10) not null default ' ',
     originalSize decimal(18,2) not null default '0.00',
     ownerCode varchar(20) not null default ' ',
-    savedPath varchar(300) not null default  ' ',
+    fileData LONGTEXT not null,
     primary key(id));
 
 groups table (Backitup Groups)

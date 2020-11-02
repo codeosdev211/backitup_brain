@@ -54,7 +54,7 @@ func signInUser(res http.ResponseWriter, req *http.Request) {
     if req.Method != "POST" {
         json.NewEncoder(res).Encode(Response{1, "Invalid Request Type", nil})
     }
-    var request Request 
+    var request Request
     var msg string = "none"
     var status int8 = 0
 
@@ -72,7 +72,7 @@ func signInUser(res http.ResponseWriter, req *http.Request) {
         msg = "Database error"
     }
 
-    if data[0]["isThere"] == 0 {
+    if data[0]["isThere"] == "0" {
         status = 1
         msg = "Invalid Email or Password"
     }else{
@@ -92,7 +92,7 @@ func signInUser(res http.ResponseWriter, req *http.Request) {
     json.NewEncoder(res).Encode(response)
 }
 
-
+/* signup user */
 func signUpUser(res http.ResponseWriter, req *http.Request) {
     if req.Method != "POST" {
         json.NewEncoder(res).Encode(Response{1, "Invalid Request Type", nil})
@@ -146,3 +146,20 @@ func signUpUser(res http.ResponseWriter, req *http.Request) {
     json.NewEncoder(res).Encode(response)
 }
 
+/* adding file */
+func addFile(res http.ResponseWriter, req *http.Request) {
+    if req.Method != "POST" {
+        json.NewEncoder(res).Encode(Response{1, "Invalid Request Type", nil})
+    }
+    var request Request
+    var msg string = "none"
+    var status int8 = 0
+
+    err := json.NewDecoder(req.Body).Decode(&request)
+    if err != nil {
+        status = 1
+        msg = "Invalid request body"
+    }
+    body := request.Values[0]
+
+}
