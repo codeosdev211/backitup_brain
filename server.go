@@ -182,6 +182,7 @@ func addFiles(res http.ResponseWriter, req *http.Request) {
         if err != nil {
             status = 1
             msg = "Invalid Insertion data"
+            fmt.Println(err)
             break
         }
     }

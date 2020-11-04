@@ -20,7 +20,7 @@ CREATE TABLE BF (
     extension varchar(10) not null default ' ',
     originalSize varchar(40) not null default '0',
     ownerCode varchar(20) not null default ' ',
-    fileData LONGTEXT not null,
+    savedTo varchar(1000) not null default ' ',
     primary key(id));
 
 groups table (Backitup Groups)
