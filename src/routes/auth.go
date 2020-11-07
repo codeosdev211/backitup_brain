@@ -5,7 +5,6 @@ import (
     "time"
     http "net/http"
     "encoding/json"
-    _ "github.com/go-sql-driver/mysql"
     models "../models"
     db "../db"
 )
