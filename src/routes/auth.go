@@ -93,11 +93,11 @@ func SignUpUser(res http.ResponseWriter, req *http.Request) {
         /*creating new user */
         query = "select lastUserCode from BAD;"
         data, _ = db.CallDatabase(true, &query)
-        userCode = fmt.Sprintf("BUI%v", data[0]["lastUserCode"])
+	    userCode := fmt.Sprintf("BUI%v", data[0]["lastUserCode"])
         currentTime := time.Now()
         query = fmt.Sprintf("Insert into BU (code, firstName, lastName, email, password, totalGroups, totalFiles, createdOn, isActive) values " +
             "('%v', '%v', '%v', '%v', '%v', '%v', '%v', '%v', '%v');",
-            newUserCode, body["firstName"], body["lastName"], body["email"], body["password"], 0, 0, currentTime.Format("2006.01.02 15:04:05"), "TRUE");
+            userCode, body["firstName"], body["lastName"], body["email"], body["password"], 0, 0, currentTime.Format("2006.01.02 15:04:05"), "TRUE");
         _, err = db.CallDatabase(false, &query)
         if err != nil {
             response.Status = 1
