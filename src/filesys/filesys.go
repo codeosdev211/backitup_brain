@@ -8,14 +8,12 @@ import (
 
 var basePath string = "/home/codeos/Desktop"
 
-func WriteFile(owner *string, name *string, data *string) error {
-    filePath := getPath(&owner, &name)
-    fileData := []byte(*data)
-    return ioutil.WriteFile(filePath, fileData, 0644)
+func WriteFile(path *string, data *string) error {
+    return ioutil.WriteFile(*path, []byte(*data), 0644)
 }
 
-func getPath(owner **string, name **string) string {
-    return fmt.Sprintf("%v/%v/%v",basePath, **owner, **name)
+func CreatePath(owner *string, name *string) string {
+    return fmt.Sprintf("%v/%v/%v", basePath, *owner, *name)
 }
 
 func ReadFile(filePath *string) ([]byte, error) {
@@ -25,7 +23,7 @@ func ReadFile(filePath *string) ([]byte, error) {
     return ioutil.ReadFile(*filePath)
 }
 
-func CreateOwnerDir(owner *string) error {
+func CreateDir(owner *string) error {
     dirPath := fmt.Sprintf("%v/%v", basePath, *owner)
     return os.Mkdir(dirPath, 0755)
 }
