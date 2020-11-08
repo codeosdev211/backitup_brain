@@ -4,6 +4,7 @@ import (
     "fmt"
     "time"
     http "net/http"
+    _ "github.com/go-sql-driver/mysql"
     "encoding/json"
     models "../models"
     db "../db"
@@ -69,6 +70,7 @@ func SignUpUser(res http.ResponseWriter, req *http.Request) {
         response.Msg = "Invalid request body"
     }
 
+
     body := request.Values[0]
     /* checking for existing user */
     var query string = fmt.Sprintf("select count(*) as isThere from BU where email='%v' and password='%v';", body["email"], body["password"])
@@ -89,9 +91,13 @@ func SignUpUser(res http.ResponseWriter, req *http.Request) {
             response.Status = 1
             response.Msg = "Database error"
         }
+
         /*creating new user */
         query = "select lastUserCode from BAD;"
-        data, _ = db.CallDatabase(true, &query)
+        data, err = db.CallDatabase(true, &query)
+        if err != nil {
+            panic(err)
+        }
 	    userCode := fmt.Sprintf("BUI%v", data[0]["lastUserCode"])
         currentTime := time.Now()
         query = fmt.Sprintf("Insert into BU (code, firstName, lastName, email, password, totalGroups, totalFiles, createdOn, isActive) values " +

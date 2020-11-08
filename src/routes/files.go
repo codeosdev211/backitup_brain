@@ -5,6 +5,7 @@ import (
     http "net/http"
     "encoding/json"
     models "../models"
+    _ "github.com/go-sql-driver/mysql"
     db "../db"
     fs "../filesys"
 )
