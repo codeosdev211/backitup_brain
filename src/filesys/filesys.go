@@ -3,13 +3,15 @@ package filesys
 import (
     "io/ioutil"
     "fmt"
+    "encoding/base64"
     "os"
 )
 
 var basePath string = "/home/codeos/Desktop"
 
 func WriteFile(path *string, data *string) error {
-    return ioutil.WriteFile(*path, []byte(*data), 0644)
+    bytes, _ := base64.StdEncoding.DecodeString(*data)
+    return ioutil.WriteFile(*path, bytes, 0644)
 }
 
 func CreatePath(owner *string, name *string) string {
