@@ -29,6 +29,14 @@ func GetStats(res http.ResponseWriter, req *http.Request) {
     if err != nil {
         helper.SendErrorResponse(&res, "Invalid Request Body")
     }
+    /* getting request body */
+    body := request.Values[0]
+    query := fmt.Sprintf("select totalFiles, totalGroups from BU where code='%v';", body["code"])
+    response.Data, err = db.CallDatabase(true, &query)
+    if err != nil {
+        helper.SendErrorResponse(&res, "Database error")
+    }
+    json.NewEncoder(res).Encode(response)
 }
 
 func SignInUser(res http.ResponseWriter, req *http.Request) {
