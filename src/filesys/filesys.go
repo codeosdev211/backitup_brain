@@ -7,7 +7,7 @@ import (
     "os"
 )
 
-var basePath string = "/home/codeos/Desktop"
+var basePath string = "/home/codeos/Documents"
 
 func WriteFile(path *string, data *string) error {
     bytes, _ := base64.StdEncoding.DecodeString(*data)
