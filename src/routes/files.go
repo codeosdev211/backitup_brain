@@ -8,12 +8,13 @@ import (
     _ "github.com/go-sql-driver/mysql"
     db "../db"
     fs "../filesys"
+    helper "../commons"
 )
 
 func AddFiles(res http.ResponseWriter, req *http.Request) {
     /* checking for request type */
     if req.Method != "POST" {
-        json.NewEncoder(res).Encode(models.Response{1, "Invalid Request Type", nil})
+        helper.SendErrorResponse(&res, "Invalid Request Type")
     }
     var request models.FileRequest
     var response models.Response
@@ -24,8 +25,7 @@ func AddFiles(res http.ResponseWriter, req *http.Request) {
     /* validating request json object */
     err := json.NewDecoder(req.Body).Decode(&request)
     if err != nil {
-        response.Status = 1
-        response.Msg = "Invalid request body"
+        helper.SendErrorResponse(&res, "Invalid Request Body")
     }
     /* getting lists for fileInfo and fileData */
     fileList := request.Values[0].FileInfos
@@ -37,16 +37,13 @@ func AddFiles(res http.ResponseWriter, req *http.Request) {
         filePath := fs.CreatePath(&file.OwnerCode, &file.Name)
         err = fs.WriteFile(&filePath, &dataList[iter])
         if err != nil {
-            response.Status = 1
-            response.Msg = "Could not write"
-            break
+            helper.SendErrorResponse(&res, "Could not write file(s)")
         }
 
         query = "Update BAD set lastFileCode = lastFileCode + 1;"
         _, err = db.CallDatabase(false, &query)
         if err != nil {
-            response.Status = 1
-            response.Msg = "Could not update fileCode"
+            helper.SendErrorResponse(&res, "Could not update file Code")
         }
 
         query = "select lastFileCode from BAD;"
@@ -57,8 +54,12 @@ func AddFiles(res http.ResponseWriter, req *http.Request) {
             fileCode, file.Name, file.Extension, file.OriginalSize, file.OwnerCode, filePath)
         _, err = db.CallDatabase(false, &query)
         if err != nil {
-            response.Status = 1
-            response.Msg = "Database error"
+            helper.SendErrorResponse(&res, "Database error")
+        }
+        query = fmt.Sprintf("update BU set totalFiles = totalFiles + 1 where code='%v';", file.OwnerCode)
+        _, err = db.CallDatabase(false, &query)
+        if err != nil {
+            helper.SendErrorResponse(&res, "Database error")
         }
     }
 
@@ -68,7 +69,7 @@ func AddFiles(res http.ResponseWriter, req *http.Request) {
 func ListFiles(res http.ResponseWriter, req *http.Request) {
     /* checking for request type */
     if req.Method != "POST" {
-        json.NewEncoder(res).Encode(models.Response{1, "Invalid Request Type", nil})
+        helper.SendErrorResponse(&res, "Invalid request type")
     }
     var request models.Request
     var response models.Response
@@ -79,16 +80,14 @@ func ListFiles(res http.ResponseWriter, req *http.Request) {
     /* validating request json object */
     err := json.NewDecoder(req.Body).Decode(&request)
     if err != nil {
-        response.Status = 1
-        response.Msg =  "Invalid request body"
+        helper.SendErrorResponse(&res, "Invalid request Body")
     }
 
     body := request.Values[0]
     query := fmt.Sprintf("select code, name from BF where ownerCode='%v';", body["code"])
     response.Data, err = db.CallDatabase(true, &query)
     if err != nil {
-        response.Status = 1
-        response.Msg = "Database error"
+        helper.SendErrorResponse(&res, "Database error")
     }
 
     json.NewEncoder(res).Encode(response)

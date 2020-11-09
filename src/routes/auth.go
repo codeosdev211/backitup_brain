@@ -8,13 +8,33 @@ import (
     "encoding/json"
     models "../models"
     db "../db"
+    helper "../commons"
 )
 
+
+func GetStats(res http.ResponseWriter, req *http.Request) {
+    /* checking for request type */
+    if req.Method != "POST" {
+        helper.SendErrorResponse(&res, "Invalid Request Type")
+    }
+
+    var request models.Request
+    var response models.Response
+    response.Status = 0
+    response.Msg = "none"
+    response.Data = nil
+
+    /* validating request json object */
+    err := json.NewDecoder(req.Body).Decode(&request)
+    if err != nil {
+        helper.SendErrorResponse(&res, "Invalid Request Body")
+    }
+}
 
 func SignInUser(res http.ResponseWriter, req *http.Request) {
     /* checking for request Type */
     if req.Method != "POST" {
-        json.NewEncoder(res).Encode(models.Response{1, "Invalid Request Type", nil})
+        helper.SendErrorResponse(&res, "Invalid Request Type")
     }
     var request models.Request
     var response models.Response
@@ -25,8 +45,7 @@ func SignInUser(res http.ResponseWriter, req *http.Request) {
     /* validating request json object */
     err := json.NewDecoder(req.Body).Decode(&request)
     if err != nil {
-        response.Status = 1
-        response.Msg = "Invalid request body"
+        helper.SendErrorResponse(&res, "Invalid Request Body")
     }
     /* getting request body */
     body := request.Values[0]
@@ -34,18 +53,15 @@ func SignInUser(res http.ResponseWriter, req *http.Request) {
     var query string = fmt.Sprintf("select count(*) as isThere from BU where email='%v' and password='%v';", body["email"], body["password"])
     data, err := db.CallDatabase(true, &query)
     if err != nil {
-        response.Status = 1
-        response.Msg = "Database error"
+        helper.SendErrorResponse(&res, "Database error")
     }
     if data[0]["isThere"] == "0" {
-        response.Status = 1
-        response.Msg = "Invalid Email or Password"
+        helper.SendErrorResponse(&res, "Invalid email or password")
     }else{
         query = fmt.Sprintf("select * from BU where email='%s' and password='%s';", body["email"], body["password"])
         response.Data, err = db.CallDatabase(true, &query)
         if err != nil {
-            response.Status = 1
-            response.Msg = "Could not get user data"
+            helper.SendErrorResponse(&res, "Could not get user data")
         }
     }
 
@@ -55,7 +71,7 @@ func SignInUser(res http.ResponseWriter, req *http.Request) {
 func SignUpUser(res http.ResponseWriter, req *http.Request) {
     /* checking for request Type */
     if req.Method != "POST" {
-        json.NewEncoder(res).Encode(models.Response{1, "Invalid Request Type", nil})
+        helper.SendErrorResponse(&res, "Invalid Request Type")
     }
     var request models.Request
     var response models.Response
@@ -66,8 +82,7 @@ func SignUpUser(res http.ResponseWriter, req *http.Request) {
     /* validating request json object */
     err := json.NewDecoder(req.Body).Decode(&request)
     if err != nil {
-        response.Status = 1
-        response.Msg = "Invalid request body"
+        helper.SendErrorResponse(&res, "Invalid request body")
     }
 
 
@@ -76,27 +91,24 @@ func SignUpUser(res http.ResponseWriter, req *http.Request) {
     var query string = fmt.Sprintf("select count(*) as isThere from BU where email='%v' and password='%v';", body["email"], body["password"])
     data, err := db.CallDatabase(true, &query)
     if err != nil {
-        response.Status = 1
-        response.Msg = "Database error"
+        helper.SendErrorResponse(&res, "Database error")
     }
 
     if data[0]["isThere"] != "0" {
-        response.Status = 1
-        response.Msg = "User already exists"
+        helper.SendErrorResponse(&res, "User already exists")
     }else{
         /* updating last usercode*/
         query = "Update BAD set lastUserCode = lastUserCode + 1;"
         _, err = db.CallDatabase(false, &query)
         if err != nil {
-            response.Status = 1
-            response.Msg = "Database error"
+            helper.SendErrorResponse(&res, "Database error")
         }
 
         /*creating new user */
         query = "select lastUserCode from BAD;"
         data, err = db.CallDatabase(true, &query)
         if err != nil {
-            panic(err)
+            helper.SendErrorResponse(&res, "Database error")
         }
 	    userCode := fmt.Sprintf("BUI%v", data[0]["lastUserCode"])
         currentTime := time.Now()
@@ -105,10 +117,10 @@ func SignUpUser(res http.ResponseWriter, req *http.Request) {
             userCode, body["firstName"], body["lastName"], body["email"], body["password"], 0, 0, currentTime.Format("2006.01.02 15:04:05"), "TRUE");
         _, err = db.CallDatabase(false, &query)
         if err != nil {
-            response.Status = 1
-            response.Msg = "Could not create User"
+            helper.SendErrorResponse(&res, "Could not create user")
         }
     }
 
     json.NewEncoder(res).Encode(response)
 }
+
