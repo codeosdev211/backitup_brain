@@ -84,7 +84,7 @@ func ListFiles(res http.ResponseWriter, req *http.Request) {
     }
 
     body := request.Values[0]
-    query := fmt.Sprintf("select code, name from BF where ownerCode='%v';", body["code"])
+    query := fmt.Sprintf("select * from BF where ownerCode='%v';", body["code"])
     response.Data, err = db.CallDatabase(true, &query)
     if err != nil {
         helper.SendErrorResponse(&res, "Database error")
