@@ -65,4 +65,31 @@ func AddFiles(res http.ResponseWriter, req *http.Request) {
     json.NewEncoder(res).Encode(response)
 }
 
+func ListFiles(res http.ResponseWriter, req *http.Request) {
+    /* checking for request type */
+    if req.Method != "POST" {
+        json.NewEncoder(res).Encode(models.Response{1, "Invalid Request Type", nil})
+    }
+    var request models.Request
+    var response models.Response
+    response.Status = 0
+    response.Msg = "none"
+    response.Data = nil
 
+    /* validating request json object */
+    err := json.NewDecoder(req.Body).Decode(&request)
+    if err != nil {
+        response.Status = 1
+        response.Msg =  "Invalid request body"
+    }
+
+    body := request.Values[0]
+    query := fmt.Sprintf("select code, name from BF where ownerCode='%v';", body["code"])
+    response.Data, err = db.CallDatabase(true, &query)
+    if err != nil {
+        response.Status = 1
+        response.Msg = "Database error"
+    }
+
+    json.NewEncoder(res).Encode(response)
+}

@@ -19,12 +19,17 @@ func CreatePath(owner *string, name *string) string {
 }
 
 
-func ReadFile(filePath *string) ([]byte, error) {
+func ReadFile(filePath *string) (string, error) {
     if _, err := os.Stat(*filePath); os.IsNotExist(err) {
-        return nil, err
+        return "", err
     }
-    return ioutil.ReadFile(*filePath)
+    file, err := ioutil.ReadFile(*filePath)
+    if err != nil {
+        return "", err
+    }
+    return base64.StdEncoding.EncodeToString(file), nil
 }
+
 func CreateDir(owner *string) error {
     dirPath := fmt.Sprintf("%v/%v", basePath, *owner)
     return os.Mkdir(dirPath, 0755)
