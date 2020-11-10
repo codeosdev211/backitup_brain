@@ -92,3 +92,42 @@ func ListFiles(res http.ResponseWriter, req *http.Request) {
 
     json.NewEncoder(res).Encode(response)
 }
+
+func DownloadFile(res http.ResponseWriter, req *http.Request) {
+    /* checking for request type */
+    if req.Method != "POST" {
+        helper.SendErrorResponse(&res, "Invalid request type")
+    }
+    var request models.Request
+    var response models.Response
+    response.Status = 0
+    response.Msg = "none"
+    response.Data = nil
+
+    /* validating request json object */
+    err := json.NewDecoder(req.Body).Decode(&request)
+    if err != nil {
+        helper.SendErrorResponse(&res, "Invalid request body")
+    }
+
+    body := request.Values[0]
+    query :=  fmt.Sprintf("select name, savedTo from BF where code='%v' and ownerCode='%v';",
+            body["code"], body["ownerCode"])
+    data, err := db.CallDatabase(true, &query)
+    if err != nil {
+        helper.SendErrorResponse(&res, "Database error")
+    }
+    path := fmt.Sprintf("%v", data[0]["savedTo"])
+    file, err := fs.ReadFile(&path)
+    if err != nil {
+        helper.SendErrorResponse(&res, "Could not read file")
+    }
+
+    var fileInfo []map[string]interface{}
+    fileInfo[0]["fileName"] = data[0]["name"]
+    fileInfo[0]["fileData"] = file
+
+    response.Data = fileInfo
+
+    json.NewEncoder(res).Encode(response)
+}
