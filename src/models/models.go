@@ -28,3 +28,10 @@ type FileInfo struct {
 type FileRequest struct {
     Values []FileInfo
 }
+
+type FileResponse struct {
+    Status int8 `json:"status"`
+    Msg string `json:"msg"`
+    FileName string `json:"fileName"`
+    FileData string `json:"fileData"`
+}

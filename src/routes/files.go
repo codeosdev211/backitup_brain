@@ -99,10 +99,9 @@ func DownloadFile(res http.ResponseWriter, req *http.Request) {
         helper.SendErrorResponse(&res, "Invalid request type")
     }
     var request models.Request
-    var response models.Response
+    var response models.FileResponse
     response.Status = 0
     response.Msg = "none"
-    response.Data = nil
 
     /* validating request json object */
     err := json.NewDecoder(req.Body).Decode(&request)
@@ -123,11 +122,8 @@ func DownloadFile(res http.ResponseWriter, req *http.Request) {
         helper.SendErrorResponse(&res, "Could not read file")
     }
 
-    var fileInfo []map[string]interface{}
-    fileInfo[0]["fileName"] = data[0]["name"]
-    fileInfo[0]["fileData"] = file
-
-    response.Data = fileInfo
+    response.FileName = fmt.Sprintf("%v", data[0]["name"])
+    response.FileData = fmt.Sprintf("%v", file)
 
     json.NewEncoder(res).Encode(response)
 }
