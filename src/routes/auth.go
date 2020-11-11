@@ -9,6 +9,7 @@ import (
     models "../models"
     db "../db"
     helper "../commons"
+    fs "../filesys"
 )
 
 
@@ -127,6 +128,7 @@ func SignUpUser(res http.ResponseWriter, req *http.Request) {
         if err != nil {
             helper.SendErrorResponse(&res, "Could not create user")
         }
+	fs.CreateDir(&userCode)
     }
 
     json.NewEncoder(res).Encode(response)
