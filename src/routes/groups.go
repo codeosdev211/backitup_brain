@@ -30,11 +30,16 @@ func GetGroups(res http.ResponseWriter, req *http.Request) {
         helper.SendErrorResponse(&res, "Invalid Request Body")
     }
 
-    query := fmt.Sprintf("select BG.code, BG.name, BG.userCount, BU.firstName from BG left join BU on BG.ownerCode like '%%';")
+    query := fmt.Sprintf("select BG.code, BG.name, BG.ownerCode, BG.userCount, BU.firstName from BG left join BU on BG.ownerCode like '%%';")
     response.Data, err = db.CallDatabase(true, &query)
     if err != nil {
         helper.SendErrorResponse(&res, "Database error")
     }
+    /* 
+    This code is still not done yet ....
+    need to change the flow of code to get user groups ...
+    continue from here next time.(14Nov20 2032)
+    */
 
     json.NewEncoder(res).Encode(response)
 }
