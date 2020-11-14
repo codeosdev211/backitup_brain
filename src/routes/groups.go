@@ -71,12 +71,18 @@ func CreateGroup(res http.ResponseWriter, req *http.Request) {
     }
     groupCode := fmt.Sprintf("BUI%v", data[0]["lastGroupCode"])
     currentTime := time.Now()
-    query = fmt.Sprintf("insert into BG values(code, name, ownerCode, fileCount, userCount, createdOn) values " +
+    query = fmt.Sprintf("insert into BG(code, name, ownerCode, fileCount, userCount, createdOn) values " +
             "('%v', '%v', '%v', '%v', '%v', '%v');",
-            groupCode, body["name"], body["ownerCode"], 0, 0, currentTime);
+            groupCode, body["name"], body["ownerCode"], 0, 0, currentTime.Format("2006.01.02 15:04:05"))
     _, err = db.CallDatabase(false, &query)
     if err != nil {
         helper.SendErrorResponse(&res, "Could not create group")
+    }
+
+    query = "update BU set totalGroups = totalGroups + 1;"
+    _, err = db.CallDatabase(false, &query)
+    if err != nil {
+        helper.SendErrorResponse(&res, "Could not update group count")
     }
 
     json.NewEncoder(res).Encode(response)
