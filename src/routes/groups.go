@@ -19,10 +19,11 @@ func GetGroups(res http.ResponseWriter, req *http.Request) {
     }
 
     var request models.Request
-    var response models.Response
+    var response models.GroupResponse
     response.Status = 0
     response.Msg = "none"
-    response.Data = nil
+    response.UserGroups = nil
+    response.PublicGroups = nil
 
     /* validation request json object */
     err := json.NewDecoder(req.Body).Decode(&request)
@@ -30,16 +31,25 @@ func GetGroups(res http.ResponseWriter, req *http.Request) {
         helper.SendErrorResponse(&res, "Invalid Request Body")
     }
 
+    body := request.Values[0]
+
     query := fmt.Sprintf("select BG.code, BG.name, BG.ownerCode, BG.userCount, BU.firstName from BG left join BU on BG.ownerCode like '%%';")
-    response.Data, err = db.CallDatabase(true, &query)
+    response.PublicGroups, err = db.CallDatabase(true, &query)
     if err != nil {
         helper.SendErrorResponse(&res, "Database error")
     }
-    /* 
-    This code is still not done yet ....
-    need to change the flow of code to get user groups ...
-    continue from here next time.(14Nov20 2032)
+    /*
+     Now... i figured out a way to get the list,
+     joining THREE tables should do, right? ... YES!
     */
+
+    query = fmt.Sprintf("select BG.code, BG.name, BG.userCount, BU.firstName from BUG right join BG on BUG.groupCode = BG.code "+
+                        " right join BU on BG.ownerCode = BU.code where BUG.userCode='%v' ;",
+                        body["code"])
+    response.UserGroups, err = db.CallDatabase(true, &query)
+    if err != nil {
+        helper.SendErrorResponse(&res, "Database error")
+    }
 
     json.NewEncoder(res).Encode(response)
 }

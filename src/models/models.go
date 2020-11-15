@@ -35,3 +35,12 @@ type FileResponse struct {
     FileName string `json:"fileName"`
     FileData string `json:"fileData"`
 }
+
+type GroupResponse struct {
+    Status int8 `json:"status"`
+    Msg string `json:"msg"`
+    UserGroups []map[string]interface{} `json:"userGroups"`
+    PublicGroups []map[string]interface{} `json:"publicGroups"`
+}
+
+
