@@ -104,7 +104,7 @@ func CreateGroup(res http.ResponseWriter, req *http.Request) {
     }
 
     query = fmt.Sprintf("Insert into BUG(userCode, groupCode, addedOn, addedBy) values "+
-            "('%v', '%v', '%v' '%v');",
+            "('%v', '%v', '%v', '%v');",
             body["ownerCode"], groupCode, currentTime.Format("2006.01.02 15:04:05"), body["ownerCode"])
     _, err = db.CallDatabase(false, &query)
     if err != nil {
