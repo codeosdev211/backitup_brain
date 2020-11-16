@@ -73,12 +73,54 @@ func FilesShared(res http.ResponseWriter, req *http.Request) {
     }
 
     /* getting request body */
-//    body := request.Values[0]
+    body := request.Values[0]
 
-/* 
-    pending (16Nov20 1423) ... have to select file data and user name, code on basis of group code, ownerCode
-    mostly right join again ...idk. create file sharing module first.
-*/
+    /* now for those who did not understand the query...
+       its basically BFG has all of BF and BF has all of BU
+       so its BFG -> BF -> BU
+       and not BU <- BFG -> BF 
+    */
+    query :=  fmt.Sprintf("select BF.code, BF.name, BF.ownerCode, BU.firstName from BFG right join BF " +
+                          "right join BU on BF.ownerCode = BU.code on BFG.fileCode = BF.code where BFG.groupCode='%v';",
+                          body["code"])
+    response.Data, err = db.CallDatabase(true, &query)
+    if err != nil {
+        helper.SendErrorResponse(&res, "Database error")
+    }
+
+    json.NewEncoder(res).Encode(response)
+}
+
+func ShareFile(res http.ResponseWriter, req *http.Request) {
+    /* checking for request type */
+    if req.Method != "POST" {
+        helper.SendErrorResponse(&res, "Invalid request Type")
+    }
+    var request models.Request
+    var response models.Response
+    response.Status = 0
+    response.Msg = "none"
+    response.Data = nil
+
+    /* validating request json object */
+    err := json.NewDecoder(req.Body).Decode(&request)
+    if err != nil {
+        helper.SendErrorResponse(&res, "Invalid Request body")
+    }
+
+    /* getting request body */
+    body := request.Values[0]
+
+    currentTime := time.Now()
+    query := fmt.Sprintf("insert into BFG(fileCode, groupCode, addedOn, addedBy) values " +
+                        " ('%v', '%v', '%v', '%v');",
+                        body["fileCode"], body["groupCode"], currentTime.Format("2006.01.02 15:04:05"), body["addedBy"])
+    _, err = db.CallDatabase(false, &query)
+    if err != nil {
+        helper.SendErrorResponse(&res, "Database error")
+    }
+
+    json.NewEncoder(res).Encode(response)
 }
 
 

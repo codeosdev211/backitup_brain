@@ -16,6 +16,8 @@ func main() {
     router.HandleFunc("/files/download", routes.DownloadFile)
     router.HandleFunc("/groups/list", routes.GetGroups)
     router.HandleFunc("/groups/create", routes.CreateGroup)
+    router.HandleFunc("/groups/share", routes.ShareFile)
+    router.HandleFunc("/groups/shared", routes.FilesShared)
 
     http.ListenAndServe(":8001", router)
 }
