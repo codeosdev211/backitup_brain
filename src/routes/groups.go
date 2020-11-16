@@ -54,6 +54,35 @@ func GetGroups(res http.ResponseWriter, req *http.Request) {
     json.NewEncoder(res).Encode(response)
 }
 
+func FilesShared(res http.ResponseWriter, req *http.Request) {
+    /* checking for request type */
+    if req.Method != "POST" {
+        helper.SendErrorResponse(&res, "Invalid Request Type")
+    }
+
+    var request models.Request
+    var response models.Response
+    response.Status = 0
+    response.Msg = "none"
+    response.Data = nil
+
+    /* validating request json object */
+    err := json.NewDecoder(req.Body).Decode(&request)
+    if err != nil {
+        helper.SendErrorResponse(&res, "Invalid Request Body")
+    }
+
+    /* getting request body */
+//    body := request.Values[0]
+
+/* 
+    pending (16Nov20 1423) ... have to select file data and user name, code on basis of group code, ownerCode
+    mostly right join again ...idk. create file sharing module first.
+*/
+}
+
+
+
 func CreateGroup(res http.ResponseWriter, req *http.Request) {
     /* checking for request type */
     if req.Method != "POST" {
