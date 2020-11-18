@@ -6,7 +6,7 @@ import (
 
 func CallDatabase(isSelect bool, query *string) ([]map[string]interface{}, error) {
     /* connecting to database */
-    db, err := sql.Open("mysql", "root:omkara@211@tcp(localhost:3306)/backitup")
+    db, err := sql.Open("mysql", "user:password@tcp(localhost:3306)/dbname")
     if err != nil {
         return nil, err
     }
